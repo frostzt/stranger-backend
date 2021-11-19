@@ -5,7 +5,6 @@ import { Server } from 'socket.io';
 import swaggerUi from 'swagger-ui-express';
 import express, { Application, Handler } from 'express';
 import { createServer, Server as HTTPServer } from 'http';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 // Utils
 import logger from './utils/logger';
@@ -26,12 +25,19 @@ class ExpressApplication {
 
   private dbUrl: string;
 
-  public io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>;
+  public io;
 
   constructor(private port: string | number, private middlewares: any[], private controllers: any[]) {
     this.app = express();
     this.httpServer = createServer(this.app);
-    this.io = new Server(this.httpServer);
+    this.io = new Server(this.httpServer, {
+      cors: {
+        origin: 'http://localhost:3000',
+        methods: ['GET', 'POST'],
+        allowedHeaders: [],
+        credentials: true,
+      },
+    });
     this.port = port;
     this.dbUrl = process.env.DATABASE_URL!;
 
